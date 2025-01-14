@@ -50,10 +50,6 @@ class EventLoop:
     selects the events that satisfy all the analysis Cuts.
 
     @TODO: implement histogram booking as well.
-
-    Main method:
-        def run (analysis: EventAnalysis): Launches the event analysis in all the events and
-                                           returns the acceptance x efficiency
     """
 
     def __init__(self, lhco_reader=None):
@@ -61,7 +57,10 @@ class EventLoop:
         self._lhco_reader = lhco_reader if lhco_reader is not None else read_LHCO
 
     def analyse_events(self, lhco_file: str, event_analyses: Dict[str, EventAnalysis]):
-        """Runs the analysis on the events from the file .lhco_file"""
+        """
+        Runs the analyses on the events from the file .lhco_file and returns a dictionary holding
+        the efficiency value for each analysis.
+        """
         # Holds the number of event that passed all the Cuts in each analysis
         efficiencies = {analysis_name: 0 for analysis_name in event_analyses}
         # Counts the total number of events
@@ -75,11 +74,11 @@ class EventLoop:
                 print(f"INFO: Reached {number_evts} events")
             # Launches the analyses
             for analysis_name, event_analysis in event_analyses.items():
-                # Copy the event
+                # Copy the event (original event must remain the same for all analysis)
                 current_event = copy.deepcopy(event)
-                # Checks if the event survived all the Cuts
+                # Checks if the event survived all the cuts
                 passed_cuts, _ = event_analysis.launch_analysis(event=current_event)
-                # Updates the counter if the event passed all Cuts
+                # Updates the counter if the event passed all cuts
                 if passed_cuts:
                     efficiencies[analysis_name] += 1
                     # @TODO: Histogram booking

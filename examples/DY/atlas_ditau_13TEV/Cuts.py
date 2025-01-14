@@ -25,9 +25,11 @@ def ditauhad_event(event: Event) -> bool:
     # At least two taus
     if len(event.tauhads) < 2:
         return False
+
     # Leading tau pT cut
-    if event.tauhads[0].pt < 165:
+    if event.tauhads[0].pt < 165 or event.tauhads[1].pt < 80:
         return False
+
     # Opposite charge cut
     if event.tauhads[0].ntrk == event.tauhads[1].ntrk:
         return False

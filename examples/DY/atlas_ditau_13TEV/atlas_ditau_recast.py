@@ -10,6 +10,7 @@ from LHCOReader_HighPT.src.Analysis import EventAnalysis, EventLoop
 from LHCOReader_HighPT.examples.DY.atlas_ditau_13TEV.ParticleSelections import (electron_candidates, muon_candidates,
                                                                                 jet_candidates, hadtau_candidates)
 from LHCOReader_HighPT.examples.DY.atlas_ditau_13TEV.Cuts import leptons_veto, ditauhad_event, btag_veto
+import json
 
 
 def atlas_ditauhad_bveto():
@@ -57,3 +58,7 @@ if __name__ == "__main__":
         efficiencies[heavy_scalar_mass] = event_loop.analyse_events(
             lhco_file=lhco_file, event_analyses=event_analyses
         )
+
+    # Saves the json file
+    with open(f"{folder_path}/eff_LHCOReader_HighPT.json", "w") as file_:
+        json.dump(efficiencies, file_, indent=4)

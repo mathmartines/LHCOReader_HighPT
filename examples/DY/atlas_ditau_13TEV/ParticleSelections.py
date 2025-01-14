@@ -67,12 +67,11 @@ def hadtau_candidates(event: Event) -> Event:
         if abs(tau.ntrk) != 1:
             continue
         # Rapitity window
-        if abs(tau.eta) >= 2.5 or (1.37 > abs(tau.eta) < 1.52):
+        if abs(tau.eta) >= 2.5 or (1.37 < abs(tau.eta) < 1.52):
             continue
         # pT cut
-        if tau.pt < 65:
-            continue
-        selected_taus.append(tau)
+        if tau.pt > 65:
+            selected_taus.append(tau)
 
     # Exclude all taus from the event
     event.remove_particles("tauhads")
