@@ -54,7 +54,6 @@ def hadtau_candidates(event: Event) -> Event:
     """
     Hadronic tau candidates must satisfy:
         - Tagged as a tau jet
-        - charge equals +/- 1
         - 1 or 3 associated tracks
         - |eta| < 2.5 and not in 1.37 < |eta| < 1.52
         - pT > 65 GeV (only for the tauhad-tauhad channel)
