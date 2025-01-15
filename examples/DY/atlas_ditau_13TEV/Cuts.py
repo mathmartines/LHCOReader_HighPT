@@ -31,12 +31,14 @@ def ditauhad_event(event: Event) -> bool:
         return False
 
     # Opposite charge cut
-    if event.tauhads[0].ntrk == event.tauhads[1].ntrk:
+    if event.tauhads[0].ntrk * event.tauhads[1].ntrk > 0:
         return False
+
     # Back to back in the transverse plane
     dphi = event.tauhads[0].phi - event.tauhads[1].phi
     if abs(dphi) > math.pi:
         dphi = dphi - 2 * math.pi if dphi > 0 else dphi + 2 * math.pi
+
     return abs(dphi) > 2.7
 
 
