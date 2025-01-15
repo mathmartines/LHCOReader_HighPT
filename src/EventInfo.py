@@ -3,7 +3,7 @@
     - Particle:
         Information can be extracted as simple attrs
     - Event:
-        Behaves like a python list of particles.
+        Behaves like a Python list of particles.
         Specific particles can be extracted using as attrs, e.g. event.electrons
 """
 
@@ -14,19 +14,17 @@ import copy
 
 class Particle:
     """
-    Holds the information about the particle.
-    The information about the particle is access as attributes.
-    Example:
-        particle.pt, particle.phi, etc
+    Holds information about the particle.
+    The particle's information can be accessed as attributes.
+
+    Example: particle.pt, particle.phi, etc.
     """
     # Information avalilable about the particle
     _particle_info_attrs = "typ eta phi pt jmas ntrk btag had/em dum1 dum2".split()
 
     def __init__(self, particle_info: str):
-        """
-        Constructor of a particle object.
-        The particle_info represents one line from the .lhco file
-        """
+        """The particle_info param represents one line from the .lhco file with only the information on
+        _particle_info_attrs"""
         self.__dict__ = {
             info: float(info_value) for info_value, info in zip(particle_info.split(), self._particle_info_attrs)
         }
@@ -51,10 +49,7 @@ class Particle:
 
 
 class Event(UserList):
-    """
-    Stores all the particles that belong to the event.
-    It behaves like a usual python list.
-    """
+    """Stores all the particles that belong to an event. Behaves like a usual python list."""
 
     # Particles types
     particles_type = {
@@ -69,12 +64,12 @@ class Event(UserList):
     def from_str_particles_info(cls, list_particles_info: List[str]):
         """
         Each entry of list_particles_info stores the information about a particle in the same way as in the .lhco
-        file.
+        file, but without the firt character (contains no information about the particle).
         """
         return cls([Particle(particle_info) for particle_info in list_particles_info])
 
     def __getattr__(self, part_type: str):
-        """Returns only the particles of a given type"""
+        """Returns only the particles of a given type."""
         if part_type not in self.particles_type:
             raise AttributeError(f"'{type(self).__name__}' object has no attribute '{part_type}'")
         # Ensures that particles are sorted by pT
@@ -87,8 +82,8 @@ class Event(UserList):
     def __deepcopy__(self, memodict=None):
         """
         Returns a copy of the object.
-        It needs to be deepcopy because the Event class holds references to Particles objects.
-        A simple copy of the Event class would still have the same references to the Particle objects.
+        It needs to be deepcopy because the Event class holds references to Particle objects.
+        A simple copy of the Event class would still have the same references as the original object.
         """
         if memodict is None:
             memodict = {}
