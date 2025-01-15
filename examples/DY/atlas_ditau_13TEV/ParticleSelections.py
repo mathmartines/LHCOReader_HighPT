@@ -66,14 +66,12 @@ def hadtau_candidates(event: Event) -> Event:
         # Charge cut
         if abs(tau.ntrk) != 1:
             continue
-        # Rapitity window
+        # Rapidity window
         if abs(tau.eta) >= 2.5 or (1.37 < abs(tau.eta) < 1.52):
             continue
-
         # pT cut
         if tau.pt < 65:
             continue
-
         # Count the number of tracks
         if abs(tau.ntrk) == 1 or abs(tau.ntrk) == 3:
             selected_taus.append(tau)
