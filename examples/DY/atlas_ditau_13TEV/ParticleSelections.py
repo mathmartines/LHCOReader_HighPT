@@ -63,9 +63,6 @@ def hadtau_candidates(event: Event) -> Event:
     selected_taus = []
 
     for tau in event.tauhads:
-        # Charge cut
-        if abs(tau.ntrk) != 1:
-            continue
         # Rapidity window
         if abs(tau.eta) >= 2.5 or (1.37 < abs(tau.eta) < 1.52):
             continue
