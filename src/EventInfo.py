@@ -75,8 +75,8 @@ class Event(UserList):
         # Ensures that particles are sorted by pT
         return self._sort_by_pt([particle for particle in self.data if particle.typ == self.particles_type[part_type]])
 
-    @classmethod
-    def _sort_by_pt(cls, part_list: List[Particle]):
+    @staticmethod
+    def _sort_by_pt(part_list: List[Particle]):
         return sorted(part_list, key=lambda particle: particle.pt, reverse=True)
 
     def __deepcopy__(self, memodict=None):
