@@ -2,6 +2,7 @@
 
 from LHCOReader_HighPT.src.LHCOReader import read_LHCO
 from LHCOReader_HighPT.src.EventInfo import Event
+from LHCOReader_HighPT.src.Histogram import Histogram, HistogramManager
 import copy
 from typing import Tuple, Dict, List, Callable
 
@@ -37,22 +38,21 @@ class EventAnalysis:
             # Updates the event with the particle selection
             event = selection(event)
         # Applies the event selection cuts
-        passed_event = all(cut(event) for cut in self._cuts)
+        passed_cuts = all(cut(event) for cut in self._cuts)
         # Returns the boolean and the modified event
-        return passed_event, event
+        return passed_cuts, event
 
 
 class EventLoop:
     """
     Iterates over all the events in a .lhco file, calculates the acceptance x efficiencies,
     and manages the histogram booking with the selected events.
-
-    @TODO: implement histogram booking.
     """
 
-    def __init__(self, lhco_reader=None):
+    def __init__(self, lhco_reader: Callable = None, histogram: Histogram = None):
         # Function responsible to read the events
         self._lhco_reader = lhco_reader if lhco_reader is not None else read_LHCO
+        self._histogram_manager = HistogramManager(hist_template=histogram) if histogram is not None else None
 
     def analyse_events(self, lhco_file: str, event_analyses: Dict[str, EventAnalysis]):
         """
@@ -69,19 +69,28 @@ class EventLoop:
 
         print(f"Reading events from file: {lhco_file}")
 
+        # Initializes the histograms in case it's needed
+        if self._histogram_manager is not None:
+            self._histogram_manager.book_histograms(list(event_analyses.keys()))
+
         # Iterates over all the events
         for event in self._lhco_reader(lhco_file):
             if number_evts > 0 and number_evts % 10000 == 0:
                 print(f"INFO: Reached {number_evts} events")
+
             # Launch the analyses
             for analysis_name, event_analysis in event_analyses.items():
                 # Copy the event (original event must remain the same for all analysis)
                 current_event = copy.deepcopy(event)
+
                 # Checks if the event survived all the cuts and updates the counter
-                passed_cuts, _ = event_analysis.launch_analysis(event=current_event)
+                passed_cuts, analysis_event = event_analysis.launch_analysis(event=current_event)
+
+                # Updates the counter and updates the histogram
                 if passed_cuts:
                     efficiencies[analysis_name] += 1
-                    # @TODO: Histogram booking
+                    if self._histogram_manager is not None:
+                        self._histogram_manager.update_analysis_hist(analysis_name=analysis_name, event=analysis_event)
 
             number_evts += 1
 
@@ -91,4 +100,9 @@ class EventLoop:
         # Divide by the total number of events to obtain the efficiencies
         efficiencies = {analysis_name: efficiencies[analysis_name] / number_evts for analysis_name in efficiencies}
 
-        return efficiencies
+        return efficiencies, number_evts
+
+    def retrive_histogram(self, analysis_name: str):
+        """Returns the histogram for a given analysis"""
+        if self._histogram_manager is not None:
+            return self._histogram_manager.retrive_hist(analysis_name)

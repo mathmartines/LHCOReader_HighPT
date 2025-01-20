@@ -4,6 +4,7 @@ from abc import ABC, abstractmethod
 import numpy as np
 from LHCOReader_HighPT.src.EventInfo import Event
 from typing import List, Callable
+import copy
 
 
 class Histogram(ABC):
@@ -18,6 +19,32 @@ class Histogram(ABC):
     def __copy__(self):
         """Clones an empty histogram"""
         pass
+
+
+class HistogramManager:
+    """Manages histograms for different analyses."""
+
+    def __init__(self, hist_template: Histogram):
+        """
+        :param hist_template: instance of a Histogram object that will be used as a template for all
+                              histograms.
+        """
+        self._hist_template = hist_template
+        self._histograms = None
+
+    def book_histograms(self, analysis_names: List[str]):
+        """Initializes the histogram for each analysis"""
+        self._histograms = {analysis_name: copy.copy(self._hist_template) for analysis_name in analysis_names}
+
+    def update_analysis_hist(self, analysis_name: str, event: Event):
+        """Updates the histogram under the name 'analysis_name'."""
+        if analysis_name in self._histograms:
+            self._histograms[analysis_name].update_hist(event)
+
+    def retrive_hist(self, analysis_name: str) -> Histogram:
+        """Returns the histogram that belongs to the analysis under 'analysis_name'."""
+        if analysis_name in self._histograms:
+            return self._histograms[analysis_name]
 
 
 class ObservableHistogram(Histogram, np.ndarray):
